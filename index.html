@@ -1,0 +1,254 @@
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+    <title>Venda de Veículos</title>
+</head>
+<body>
+    <ul class="nav bg-transparent text-dark">
+        <li class="nav-item">
+            <a id="atualizar" class="nav-link active" href="#">Atualizar Lista</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" id="cadastrar" data-toggle="modal" data-target=".bd-example-modal-lg" href="#">Cadastrar Veículo</a>
+        </li>
+        <li>
+            <div class="form-inline my-2 my-lg-0">
+                <input id="pesquisar" class="form-control mr-sm-2" type="search" placeholder="Pesquisar veículos" aria-label="Pesquisar">
+                <button id="btnPesquisar" class="btn btn-outline-success my-2 my-sm-0" type="submit">Pesquisar</button>
+            </div>
+        </li>
+    </ul>
+
+    <table class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Ação</th>
+            <th scope="col">Veículo</th>
+            <th scope="col">Marca</th>
+            <th scope="col">Ano</th>
+            <th scope="col">Descrição</th>
+            <th scope="col">Última atualização</th>            
+          </tr>
+        </thead>
+        <tbody id="tabela">
+            
+        </tbody>
+    </table>  
+
+    <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Atualizar / Cadastrar novo veículo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                    <span aria-hidden="true">&times;</span>
+                </button>                
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="veiculo" class="col-form-label">Veículo:</label>
+                        <input type="text" class="form-control" id="veiculo">
+                    </div>
+                    <div class="form-group">
+                        <label for="marca" class="col-form-label">Marca:</label>
+                        <input type="text" class="form-control" id="marca">
+                    </div>
+                    <div class="form-group">
+                        <label for="ano" class="col-form-label">Ano:</label>
+                        <input type="number" class="form-control" id="ano">
+                    </div>
+                    <div class="form-group">
+                        <label for="descricao" class="col-form-label">Descrição:</label>
+                        <input class="form-control" id="descricao"/>
+                    </div>
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" id="vendido">
+                        <label class="form-check-label" for="vendido">Veículo vendido</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="btnFechar" type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                <button id="btnSalvar" type="button" class="btn btn-primary">Salvar</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var tabela = $('#tabela');
+        var parent = tabela.parent();
+
+        var inserirRegistro;
+        var idVeiculoSelecionado;
+
+        $(document).ready(function() {
+            ListarVeiculos();              
+        });
+
+        function ListarVeiculos(){
+            $('#tabela tr').remove();
+
+            $.getJSON( "https://localhost:5001/v1/veiculos", function( listaVeiculos ) {               
+                ExibirListaVeiculos(listaVeiculos);
+            }); 
+        }
+
+        function ExibirListaVeiculos(listaVeiculos) { 
+            listaVeiculos.forEach(veiculo => {
+                    var e =
+                    '<tr class="rows">' +
+                        '<th scope="row">'+veiculo.id+'</th>' +
+                        '<td  contenteditable="false">' +
+                            '<button type="button" class="btn btn-primary mr-sm-2" onClick="ListarVeiculosPorId('+veiculo.id+')">Editar</button>' +
+                            '<button type="button" class="deletar btn btn-danger mr-sm-2" onClick="ExcluirRegistro(' + veiculo.id + ')">Excluir</button>' +
+                            (veiculo.vendido ? '' : '<button type="button" class="deletar btn btn-secondary" onClick="MarcarVeiculoVendido(' + veiculo.id + ')">Marcar como vendido</button>') +
+                        '</td>' +
+                        '<td>'+veiculo.veiculo+'</td>' +
+                        '<td>'+veiculo.marca+'</td>' +
+                        '<td>'+veiculo.ano+'</td>' +
+                        '<td>'+veiculo.descricao+'</td>' +
+                        '<td>'+new Date(veiculo.updated).toLocaleString()+'</td>' +
+                    '</tr>';  
+                    
+                    $(e).appendTo(parent);
+                }); 
+         }
+
+        function ListarVeiculosPorId(id){
+            inserirRegistro = false;
+            idVeiculoSelecionado = id;
+
+            $.getJSON( "https://localhost:5001/v1/veiculos/" + idVeiculoSelecionado, function( veiculo ) {
+                $('#veiculo').val(veiculo.veiculo)
+                $('#marca').val(veiculo.marca)
+                $('#ano').val(veiculo.ano)
+                $('#descricao').val(veiculo.descricao)                  
+                $('#vendido').prop('checked', veiculo.vendido)
+
+                $('.bd-example-modal-lg').modal('show');
+            });
+        }
+
+        function PesquisarVeiculos(param){
+            $('#tabela tr').remove();
+
+            $.getJSON( "https://localhost:5001/v1/veiculos/find/" + param, function( listaVeiculos ) {
+                ExibirListaVeiculos(listaVeiculos);
+            });
+        }
+
+        function ShowInserirRegistro(){
+            inserirRegistro = true;
+            LimparFormulario();
+        }
+
+        function InserirRegistro(){
+            $.ajax({
+                type: "POST",
+                url: "https://localhost:5001/v1/veiculos",
+                data: JSON.stringify({
+                    veiculo: $('#veiculo').val(),
+                    marca: $('#marca').val(),
+                    ano: parseInt($('#ano').val()),
+                    descricao: $('#descricao').val(),
+                    vendido: $('#vendido').prop('checked')
+                }),
+                contentType: "application/json; charset=UTF-8",
+                dataType: "json",
+                success: function (response) {
+                    ListarVeiculos();
+                }
+            });
+        }
+
+        function AtualizarRegistro(){
+            $.ajax({
+                type: "PUT",
+                url: "https://localhost:5001/v1/veiculos/" + idVeiculoSelecionado,
+                data: JSON.stringify({
+                    veiculo: $('#veiculo').val(),
+                    marca: $('#marca').val(),
+                    ano: parseInt($('#ano').val()),
+                    descricao: $('#descricao').val(),
+                    vendido: $('#vendido').prop('checked')
+                }),
+                contentType: "application/json; charset=UTF-8",
+                dataType: "json",
+                success: function (response) {
+                    ListarVeiculos();
+                }
+            });
+        }
+
+        function ExcluirRegistro(id) {
+            
+            $.ajax({
+                type: "DELETE",
+                url: "https://localhost:5001/v1/veiculos/" + id,
+                contentType: "application/json; charset=UTF-8",
+                dataType: "json",
+                success: function (response) {
+                    ListarVeiculos();
+                }
+            });
+        }
+
+        function MarcarVeiculoVendido(id){
+            $.ajax({
+                type: "PATCH",
+                url: "https://localhost:5001/v1/veiculos/" + id,
+                contentType: "application/json; charset=UTF-8",
+                dataType: "json",
+                success: function (response) {
+                    ListarVeiculos();
+                }
+            });
+        }
+
+        function LimparFormulario(){
+            $('.bd-example-modal-lg').modal('hide');
+
+            $('#veiculo').val('')
+            $('#marca').val('')
+            $('#ano').val('')
+            $('#descricao').val('')
+            $('#vendido').prop('checked', false)
+        }
+
+        $('#btnSalvar').click(function() {
+
+            if(inserirRegistro){
+                InserirRegistro();
+            } else {
+                AtualizarRegistro();
+            }
+
+            LimparFormulario();
+        });
+
+        $('#atualizar').click(function() {
+            ListarVeiculos();
+        });
+
+        $('#cadastrar').click(function() {
+            ShowInserirRegistro();
+        });
+
+        $('#btnPesquisar').click(function() {
+            PesquisarVeiculos($('#pesquisar').val());
+        });
+    </script>
+
+</body>
+</html>

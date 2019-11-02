@@ -1,0 +1,16 @@
+{
+  "FilePath": "f:\\Cursos\\ASP .NET Core\\ApiVendas\\ApiVendas.csproj",
+  "Configuration": {
+    "ConfigurationName": "MVC-3.0",
+    "LanguageVersion": "3.0",
+    "Extensions": [
+      {
+        "ExtensionName": "MVC-3.0"
+      }
+    ]
+  },
+  "ProjectWorkspaceState": {
+    "TagHelpers": [
+      {
+        "Kind": "Components.Component",
+        "Name": "Mi
