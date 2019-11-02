@@ -1,4 +1,5 @@
 using ApiVendas.Models;
+using ApiVendas.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,7 @@ namespace ApiVendas
             var connection = Configuration["MySQL:ConnectionString"];
 
             services.AddDbContext<AppDbContext>(options => options.UseMySql(connection));
+            services.AddScoped<IVeiculoRepository, VeiculoRepository>();
             services.AddControllers();
         }
 
