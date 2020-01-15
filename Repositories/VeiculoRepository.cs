@@ -62,5 +62,7 @@ namespace ApiVendas.Repositories
             context.Veiculos.Remove(veiculo);
             return context.SaveChanges() > 0;
         }
+
+        
     }
 }

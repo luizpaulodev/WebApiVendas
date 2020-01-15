@@ -17,5 +17,7 @@ namespace ApiVendas.Repositories
         bool MarcarVeiculoVendido(VeiculoVenda veiculo);
 
         bool ExcluirVeiculo(VeiculoVenda veiculo);    
+
+        bool Teste();
     }
 }
