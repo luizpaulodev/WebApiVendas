@@ -23,5 +23,7 @@ namespace ApiVendas.Repositories
         bool Teste2();
 
         bool Teste3();
+        
+        bool Teste4();
     }
 }
